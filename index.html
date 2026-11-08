@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rumbo Aventura - CON FOTOS</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#FFFBF5;color:#0A221A}
+nav{background:#fff;padding:14px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+.btn{border:none;border-radius:100px;padding:12px 20px;font-weight:800;cursor:pointer;background:#0A221A;color:#fff}
+.btn-lime{background:#D9FF68;color:#0A221A}
+.hero{max-width:1100px;margin:16px auto;padding:0 12px}
+.hero-main{border-radius:24px;padding:22px;background:linear-gradient(rgba(0,0,0,.2),rgba(0,0,0,.75)),url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=80') center/cover;color:#fff;min-height:360px;display:flex;flex-direction:column;justify-content:center}
+.hero-main h1{font-size:56px;line-height:.9}
+.search{background:#fff;border-radius:16px;padding:10px;display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.search input,.search select{flex:1;min-width:130px;padding:12px;border:1px solid #ddd;border-radius:10px;color:#000}
+.section{max-width:1100px;margin:auto;padding:24px 12px}
+.chip{padding:10px 16px;border-radius:100px;border:1px solid #ddd;background:#fff;font-weight:700;cursor:pointer}
+.chip.active{background:#0A221A;color:#fff}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+.card{background:#fff;border:1px solid #eee;border-radius:20px;overflow:hidden;cursor:pointer}
+.card-img{height:180px;position:relative;overflow:hidden;background:#ddd}
+.card-img img{width:100%;height:100%;object-fit:cover;display:block}
+.card-img span{position:absolute;top:10px;left:10px;background:#fff;padding:5px 10px;border-radius:100px;font-size:11px;font-weight:800}
+.card-body{padding:14px}
+.price{font-size:22px;font-weight:800}
+.coti{background:#0A221A;color:#fff;border-radius:24px;padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.coti input,.coti select{width:100%;padding:12px;border-radius:10px;border:none;margin:6px 0 12px;color:#000;background:#fff}
+.desglose{background:#fff;color:#0A221A;border-radius:16px;padding:18px}
+.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #ddd}
+.contact{background:#fff;border:1px solid #eee;border-radius:20px;padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.contact input,.contact select,.contact textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;margin:6px 0 10px;color:#000}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:99;padding:12px}
+.modal.open{display:flex}
+.modal-box{background:#fff;border-radius:20px;max-width:600px;width:100%;overflow:hidden;max-height:92vh;overflow-y:auto}
+.modal-box img{width:100%;height:240px;object-fit:cover;display:block}
+@media(max-width:800px){.grid{grid-template-columns:1fr 1fr}.coti,.contact{grid-template-columns:1fr}}
+@media(max-width:500px){.grid{grid-template-columns:1fr}.hero-main h1{font-size:42px}}
+</style>
+</head>
+<body>
+<nav><b>✈️ RUMBO AVENTURA</b><button class="btn" onclick="document.getElementById('catalogo').scrollIntoView({behavior:'smooth'})">Ver destinos</button></nav>
+
+<div class="hero"><div class="hero-main">
+<h1>VIAJA<br>SIN LIMITES</h1>
+<p>Cotiza en 30 segundos. Sin llamadas.</p>
+<div class="search">
+<input id="buscador" type="text" placeholder="Buscar: Cartagena, Paris...">
+<select id="filtroContinente"><option value="todos">Todos</option><option value="America">America</option><option value="Europa">Europa</option><option value="Caribe">Caribe</option><option value="Asia">Asia</option></select>
+<select id="filtroPrecio"><option value="todos">Cualquier precio</option><option value="0-1200000">Hasta $1.2M</option><option value="1200000-3000000">$1.2M - $3M</option><option value="3000000-99999999">Mas de $3M</option></select>
+<button class="btn btn-lime" onclick="filtrar()">Buscar</button>
+</div>
+</div></div>
+
+<div class="section" id="catalogo">
+<h2>DESTINOS DESTACADOS</h2>
+<p id="contador" style="font-weight:700;margin-top:6px"></p>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+<button class="chip active" onclick="setCont('todos',this)">Todos</button>
+<button class="chip" onclick="setCont('America',this)">America</button>
+<button class="chip" onclick="setCont('Europa',this)">Europa</button>
+<button class="chip" onclick="setCont('Caribe',this)">Caribe</button>
+<button class="chip" onclick="setCont('Asia',this)">Asia</button>
+</div>
+<div class="grid" id="grid"></div>
+<p id="sin" style="display:none;text-align:center;padding:20px;font-weight:800">No hay destinos con ese filtro</p>
+</div>
+
+<div class="section" id="cotizador"><div class="coti">
+<div>
+<h2 style="font-size:38px">COTIZADOR</h2>
+<label>DESTINO</label><select id="cotDestino"></select>
+<label>PERSONAS</label><input id="cotPersonas" type="number" value="2" min="1" max="20">
+<label>NOCHES</label><input id="cotNoches" type="number" value="3" min="1" max="30">
+<label>HOTEL</label><select id="cotHotel"><option value="economico">Economico - $0 extra</option><option value="estandar" selected>Estandar - + $80.000 x persona / noche</option><option value="lujo">Lujo - + $200.000 x persona / noche</option></select>
+<p id="errCot" style="color:#FFD166;font-weight:700;display:none"></p>
+<button class="btn btn-lime" style="width:100%" onclick="cotizar()">CALCULAR TOTAL</button>
+<p id="okCot" style="display:none;background:#D9FF68;color:#0A221A;padding:12px;border-radius:10px;margin-top:10px;font-weight:800"></p>
+</div>
+<div class="desglose">
+<h3>DESGLOSE</h3>
+<div class="row"><span>Destino</span><b id="dDestino">-</b></div>
+<div class="row"><span>Precio base</span><b id="dBase">$0</b></div>
+<div class="row"><span>Personas x Noches</span><b id="dCant">-</b></div>
+<div class="row"><span>Subtotal base</span><b id="dSubtotal">$0</b></div>
+<div class="row"><span>Recargo hotel</span><b id="dHotel">$0</b></div>
+<div class="row" style="font-size:20px;font-weight:800"><span>TOTAL</span><span id="dTotal" style="color:#FF4D1C">$0</span></div>
+<button class="btn" style="width:100%;margin-top:12px" onclick="enviarCotizacion()">Enviar por WhatsApp</button>
+</div>
+</div></div>
+
+<div class="section"><h2>CONTACTO POR WHATSAPP</h2><div class="contact" style="margin-top:12px">
+<form onsubmit="return enviarContacto(event)">
+<input id="cNombre" placeholder="Tu nombre completo">
+<input id="cTel" placeholder="Telefono 3001234567">
+<select id="cDestino"></select>
+<textarea id="cMsg" rows="3" placeholder="Cuando quieres viajar?"></textarea>
+<button class="btn" style="width:100%">Solicitar asesoria por WhatsApp</button>
+<p id="errC" style="display:none;color:red;font-weight:700"></p>
+</form>
+<div style="background:#0A221A;color:#fff;border-radius:16px;padding:16px"><b>RUMBO AVENTURA</b><p style="margin-top:10px;line-height:1.8">Medellin, Colombia<br>WhatsApp: 350 526 24 16<br>Respuesta en menos de 1 hora</p></div>
+</div></div>
+
+<div class="modal" id="modal" onclick="if(event.target===this) cerrar()"><div class="modal-box">
+<img id="mImg" src="" alt="Destino">
+<div style="padding:18px"><h2 id="mNombre"></h2><p id="mDesc" style="margin:8px 0;opacity:.7"></p><p id="mInfo"></p><ul id="mIncluye" style="margin-left:18px;line-height:1.8"></ul>
+<button class="btn" style="width:100%;margin-top:12px" onclick="cotizarDesdeModal()">Cotizar este destino</button>
+<button class="btn" style="width:100%;margin-top:8px;background:#eee;color:#000" onclick="cerrar()">Cerrar</button></div>
+</div></div>
+
+<script>
+var destinos=[
+{id:1,nombre:"Cartagena",continente:"America",pais:"Colombia",duracion:"3 noches",precio:850000,img:"https://images.unsplash.com/photo-1568632234157-ce7aecd03d0d?w=800&q=80&auto=format&fit=crop",desc:"Ciudad amurallada y playas de Bocagrande.",incluye:["Alojamiento 3 noches","Desayuno","Tour ciudad"]},
+{id:2,nombre:"Medellin",continente:"America",pais:"Colombia",duracion:"2 noches",precio:620000,img:"https://images.unsplash.com/photo-1583531172005-814191b8b6c0?w=800&q=80&auto=format&fit=crop",desc:"Comuna 13, Guatape y eterna primavera.",incluye:["Alojamiento","Tour Comuna 13","Guatape"]},
+{id:3,nombre:"Santa Marta",continente:"America",pais:"Colombia",duracion:"4 noches",precio:980000,img:"https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c5f?w=800&q=80&auto=format&fit=crop",desc:"Mar, Sierra Nevada y Tayrona.",incluye:["Alojamiento","Tour Tayrona","Playa Blanca"]},
+{id:4,nombre:"Eje Cafetero",continente:"America",pais:"Colombia",duracion:"3 noches",precio:720000,img:"https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=800&q=80&auto=format&fit=crop",desc:"Valle de Cocora y cultura cafetera.",incluye:["Valle de Cocora","Tour cafetero","Termales"]},
+{id:5,nombre:"Cancun",continente:"Caribe",pais:"Mexico",duracion:"5 noches",precio:2850000,img:"https://images.unsplash.com/photo-1510097467424-192d713fd8b2?w=800&q=80&auto=format&fit=crop",desc:"Arena blanca y mar turquesa, todo incluido.",incluye:["Todo incluido","Vuelo","Isla Mujeres"]},
+{id:6,nombre:"Punta Cana",continente:"Caribe",pais:"Dominicana",duracion:"5 noches",precio:3100000,img:"https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=800&q=80&auto=format&fit=crop",desc:"Resort frente al mar y fiesta caribena.",incluye:["Todo incluido","Resort 5 estrellas","Saona"]},
+{id:7,nombre:"Paris",continente:"Europa",pais:"Francia",duracion:"6 noches",precio:4950000,img:"https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80&auto=format&fit=crop",desc:"Torre Eiffel, Louvre y croissants.",incluye:["Alojamiento 6 noches","Tour Eiffel","Paseo Sena"]},
+{id:8,nombre:"Madrid",continente:"Europa",pais:"Espana",duracion:"5 noches",precio:4200000,img:"https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=800&q=80&auto=format&fit=crop",desc:"Gran Via, tapas y mejor ambiente.",incluye:["Alojamiento","Tour centro","Toledo"]},
+{id:9,nombre:"New York",continente:"America",pais:"USA",duracion:"5 noches",precio:4600000,img:"https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&q=80&auto=format&fit=crop",desc:"Times Square y Central Park.",incluye:["Alojamiento","City Pass","Broadway"]},
+{id:10,nombre:"Dubai",continente:"Asia",pais:"Emiratos",duracion:"6 noches",precio:5800000,img:"https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&q=80&auto=format&fit=crop",desc:"Burj Khalifa y safari en desierto.",incluye:["Hotel 5 estrellas","Safari","Burj Khalifa"]}
+];
+function fmt(n){return "$"+n.toLocaleString('es-CO')}
+var destinoActual=null; var ultima=null;
+function renderizar(lista){
+  var grid=document.getElementById('grid');
+  document.getElementById('contador').textContent=lista.length+" destinos encontrados";
+  document.getElementById('sin').style.display=lista.length?'none':'block';
+  var html="";
+  for(var i=0;i<lista.length;i++){var d=lista[i];
+    html+='<div class="card" onclick="verDetalle('+d.id+')"><div class="card-img"><img src="'+d.img+'" alt="Foto de '+d.nombre+', '+d.pais+'" loading="lazy" onerror="this.src=\'https://picsum.photos/seed/'+d.nombre+'/800/500\'"><span>'+d.continente+' - '+d.pais+'</span></div><div class="card-body"><b>'+d.nombre.toUpperCase()+'</b><p style="opacity:.6;font-size:13px">'+d.pais+' - '+d.duracion+'</p><div class="price">'+fmt(d.precio)+' <small style="font-size:12px">/ persona</small></div></div></div>';
+  }
+  grid.innerHTML=html;
+}
+function filtrar(){
+  var q=document.getElementById('buscador').value.toLowerCase();
+  var cont=document.getElementById('filtroContinente').value;
+  var precio=document.getElementById('filtroPrecio').value;
+  var lista=[];
+  for(var i=0;i<destinos.length;i++){var d=destinos[i];
+    var okQ=d.nombre.toLowerCase().indexOf(q)>-1 || d.pais.toLowerCase().indexOf(q)>-1;
+    var okC=cont==='todos' || d.continente===cont;
+    var okP=true;
+    if(precio!=='todos'){var p=precio.split('-');var min=parseInt(p[0]);var max=parseInt(p[1]); okP=d.precio>=min && d.precio<=max;}
+    if(okQ && okC && okP) lista.push(d);
+  }
+  renderizar(lista);
+}
+function setCont(c,btn){
+  document.getElementById('filtroContinente').value=c;
+  var chips=document.querySelectorAll('.chip'); for(var i=0;i<chips.length;i++) chips[i].classList.remove('active');
+  btn.classList.add('active'); filtrar();
+}
+function verDetalle(id){
+  for(var i=0;i<destinos.length;i++) if(destinos[i].id===id) destinoActual=destinos[i];
+  var d=destinoActual;
+  var img=document.getElementById('mImg'); img.src=d.img; img.alt='Foto de '+d.nombre;
+  img.onerror=function(){this.src='https://picsum.photos/seed/'+d.nombre+'/800/500'};
+  document.getElementById('mNombre').textContent=d.nombre;
+  document.getElementById('mDesc').textContent=d.desc;
+  document.getElementById('mInfo').textContent=d.continente+' - '+d.pais+' - '+d.duracion+' - '+fmt(d.precio)+' / persona';
+  document.getElementById('mIncluye').innerHTML='<li>'+d.incluye.join('</li><li>')+'</li>';
+  document.getElementById('modal').classList.add('open');
+}
+function cerrar(){document.getElementById('modal').classList.remove('open')}
+function cotizarDesdeModal(){if(destinoActual){document.getElementById('cotDestino').value=destinoActual.id; cerrar(); document.getElementById('cotizador').scrollIntoView({behavior:'smooth'}); cotizar();}}
+function llenar(){
+  var opts=""; for(var i=0;i<destinos.length;i++) opts+='<option value="'+destinos[i].id+'">'+destinos[i].nombre+' - '+fmt(destinos[i].precio)+'</option>';
+  document.getElementById('cotDestino').innerHTML=opts;
+  document.getElementById('cDestino').innerHTML='<option value="">Cualquier destino</option>'+opts;
+}
+function cotizar(){
+  var id=parseInt(document.getElementById('cotDestino').value);
+  var personas=parseInt(document.getElementById('cotPersonas').value);
+  var noches=parseInt(document.getElementById('cotNoches').value);
+  var hotel=document.getElementById('cotHotel').value;
+  var err=document.getElementById('errCot');
+  if(!personas || personas<1 || personas>20){err.textContent='Personas entre 1 y 20';err.style.display='block';return;}
+  if(!noches || noches<1 || noches>30){err.textContent='Noches entre 1 y 30';err.style.display='block';return;}
+  err.style.display='none';
+  var d=null; for(var i=0;i<destinos.length;i++) if(destinos[i].id===id) d=destinos[i];
+  var recargo=hotel==='economico'?0:hotel==='estandar'?80000:200000;
+  var nombreHotel=hotel==='economico'?'Economico':hotel==='estandar'?'Estandar':'Lujo';
+  var subtotal=d.precio*personas*noches;
+  var totalHotel=recargo*personas*noches;
+  var total=subtotal+totalHotel;
+  ultima={d:d,personas:personas,noches:noches,hotel:nombreHotel,total:total,subtotal:subtotal,totalHotel:totalHotel};
+  document.getElementById('dDestino').textContent=d.nombre+' - '+d.pais;
+  document.getElementById('dBase').textContent=fmt(d.precio);
+  document.getElementById('dCant').textContent=personas+' x '+noches;
+  document.getElementById('dSubtotal').textContent=fmt(subtotal);
+  document.getElementById('dHotel').textContent=fmt(totalHotel);
+  document.getElementById('dTotal').textContent=fmt(total);
+  var ok=document.getElementById('okCot'); ok.textContent='Cotizacion lista: '+fmt(total); ok.style.display='block';
+}
+function enviarCotizacion(){
+  if(!ultima) cotizar();
+  var c=ultima;
+  var msg='COTIZACION RUMBO AVENTURA\nDestino: '+c.d.nombre+'\nPersonas: '+c.personas+'\nNoches: '+c.noches+'\nHotel: '+c.hotel+'\nTotal: '+fmt(c.total);
+  window.open('https://wa.me/573505262416?text='+encodeURIComponent(msg),'_blank');
+}
+function enviarContacto(e){
+  e.preventDefault();
+  var nombre=document.getElementById('cNombre').value.trim();
+  var tel=document.getElementById('cTel').value.trim();
+  var err=document.getElementById('errC');
+  if(nombre.length<3){err.textContent='Escribe tu nombre';err.style.display='block';return false;}
+  if(!/^\d{10}$/.test(tel)){err.textContent='Telefono debe tener 10 digitos';err.style.display='block';return false;}
+  err.style.display='none';
+  var dest=document.getElementById('cDestino').selectedOptions[0].text;
+  var msg='NUEVA ASESORIA\nNombre: '+nombre+'\nTel: '+tel+'\nDestino: '+dest+'\nMensaje: '+document.getElementById('cMsg').value;
+  window.open('https://wa.me/573505262416?text='+encodeURIComponent(msg),'_blank');
+  return false;
+}
+document.getElementById('buscador').addEventListener('input',filtrar);
+document.getElementById('filtroContinente').addEventListener('change',filtrar);
+document.getElementById('filtroPrecio').addEventListener('change',filtrar);
+llenar(); renderizar(destinos); cotizar();
+</script>
+</body>
+</html>
